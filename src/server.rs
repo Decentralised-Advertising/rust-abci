@@ -19,8 +19,8 @@ where
     A: Application + 'static + Send + Sync,
 {
     let app = Arc::new(Mutex::new(app));
-    let mut listener = TcpListener::bind(&addr).await.unwrap();
-    while let Some(Ok(socket)) = listener.next().await {
+    let listener = TcpListener::bind(&addr).await.unwrap();
+    while let Ok((socket, _)) = listener.accept().await {
         let app_instance = app.clone();
         tokio::spawn(async move {
             info!("Got connection! {:?}", socket);
@@ -58,8 +58,7 @@ where
         .try_init()
         .ok();
 
-    let mut rt = runtime::Builder::new()
-        .basic_scheduler()
+    let rt = runtime::Builder::new_current_thread()
         .enable_io()
         .build()
         .unwrap();

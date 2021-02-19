@@ -1,4 +1,4 @@
-use bytes::{buf::BufMutExt, BufMut, BytesMut};
+use bytes::{BufMut, BytesMut};
 use integer_encoding::VarInt;
 use protobuf::{Message, ProtobufError};
 use tokio_util::codec::{Decoder, Encoder};
@@ -23,7 +23,7 @@ impl Decoder for ABCICodec {
         if length == 0 {
             return Ok(None);
         }
-        let varint: (i64, usize) = i64::decode_var(&buf[..]);
+        let varint: (i64, usize) = i64::decode_var(&buf[..]).unwrap_or((0i64, 0usize));
         if varint.0 as usize + varint.1 > length {
             return Ok(None);
         }
